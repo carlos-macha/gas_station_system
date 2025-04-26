@@ -2,7 +2,7 @@ package com.example.gas_station_system.controllers;
 
 import com.example.gas_station_system.models.User;
 import com.example.gas_station_system.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +20,23 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user) {
+        String result = userService.loginService(user.getEmail(), user.getPassword());
+
+        if (result == null || result.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais inválidas");
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/create-user")
     public ResponseEntity<Map<String, String>> createUser(@RequestBody User userModel) {
         Map<String, String> response = userService.createUser(userModel);
+        if (!"200".equals(response.get("status"))) {
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -31,13 +45,36 @@ public class UserController {
         return ResponseEntity.ok(userService.indexService());
     }
 
-    @PostMapping("/find-by-Id/{id}")
-    public  ResponseEntity<User> findById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(userService.findByIdService(id));
+    @GetMapping("/find-by-id/{id}")
+    public ResponseEntity<User> findById(@PathVariable("id") Long id) {
+        User user = userService.findByIdService(id);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> findByEmail(@RequestBody User user) {
-        return ResponseEntity.ok(userService.findByEmailService(user.getEmail(), user.getPassword()));
+    @GetMapping("/find-by-email/{email}")
+    public ResponseEntity<User> findByEmail(@PathVariable("email") String email) {
+        User user = userService.findByEmailService(email);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/find-by-email/{name}")
+    public ResponseEntity<User> findByName(@PathVariable("name") String name) {
+        User user = userService.findByNameService(name);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(user);
     }
 }

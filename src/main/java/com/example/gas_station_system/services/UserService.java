@@ -49,7 +49,7 @@ public class UserService {
         return  userRepository.FindUserById(id);
     }
 
-    public String findByEmailService(String email, String password) {
+    public String loginService(String email, String password) {
         User user = userRepository.FindUserByEmail(email);
 
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
@@ -58,5 +58,13 @@ public class UserService {
         } else {
             return null;
         }
+    }
+
+    public User findByEmailService(String email) {
+        return userRepository.FindUserByEmail(email);
+    }
+
+    public User findByNameService(String name) {
+        return userRepository.FindUserByName(name);
     }
 }
